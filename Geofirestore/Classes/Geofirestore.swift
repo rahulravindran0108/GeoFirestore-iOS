@@ -245,7 +245,7 @@ open class GFSQuery {
         self.reset()
     }
     
-    public func fireStoreQueryForGeoHashQuery(query: GFGeoHashQuery) -> Query {
+    open func fireStoreQueryForGeoHashQuery(query: GFGeoHashQuery) -> Query {
         var query = self.geoFirestore.collectionRef.order(by: "g").whereField("g", isGreaterThanOrEqualTo: query.startValue).whereField("g", isLessThanOrEqualTo: query.endValue)
         if let limit = self.searchLimit {
             query = query.limit(to: limit)
@@ -583,8 +583,6 @@ open class GFSQuery {
             case .documentMoved:
                 keyMovedObservers[firebaseHandle] = block
                 currentHandle += 1
-            default:
-                NSException.raise(.invalidArgumentException, format: "Event type was not a GFEventType!", arguments: getVaList(["nil"]))
             }
             if self.queries.isEmpty {
                 self.updateQueries()
@@ -658,7 +656,7 @@ open class GFSQuery {
 
 
 
-public class GFSCircleQuery: GFSQuery {
+open class GFSCircleQuery: GFSQuery {
     
     /**
      * The center of the search area. Update this value to update the query. Events are triggered for any documents that move
