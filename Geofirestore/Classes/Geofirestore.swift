@@ -9,7 +9,7 @@ public extension GeoPoint {
         return GeoPoint(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
     }
     
-    public func locationValue() -> CLLocation {
+    func locationValue() -> CLLocation {
         return CLLocation(latitude: self.latitude, longitude: self.longitude)
     }
 }
@@ -19,7 +19,7 @@ public extension CLLocation {
         return CLLocation(latitude: geopoint.latitude, longitude: geopoint.longitude)
     }
     
-    public func geopointValue() -> GeoPoint {
+    func geopointValue() -> GeoPoint {
         return GeoPoint(latitude: self.coordinate.latitude, longitude: self.coordinate.longitude)
     }
 }
@@ -208,7 +208,7 @@ internal class GFSGeoHashQueryListener {
 /**
  * A GFSQuery object handles geo queries in a Firestore collection.
  */
-public class GFSQuery {
+open class GFSQuery {
     internal class GFSQueryLocationInfo {
         var isInQuery: Bool?
         var location: CLLocation?
@@ -245,7 +245,7 @@ public class GFSQuery {
         self.reset()
     }
     
-    internal func fireStoreQueryForGeoHashQuery(query: GFGeoHashQuery) -> Query {
+    public func fireStoreQueryForGeoHashQuery(query: GFGeoHashQuery) -> Query {
         var query = self.geoFirestore.collectionRef.order(by: "g").whereField("g", isGreaterThanOrEqualTo: query.startValue).whereField("g", isLessThanOrEqualTo: query.endValue)
         if let limit = self.searchLimit {
             query = query.limit(to: limit)
@@ -254,11 +254,11 @@ public class GFSQuery {
     }
     
     //overriden
-    internal func locationIsInQuery(loc: CLLocation) -> Bool {
+    public func locationIsInQuery(loc: CLLocation) -> Bool {
         fatalError("Override in subclass.")
     }
     
-    internal func queriesForCurrentCriteria() -> Set<AnyHashable> {
+    public func queriesForCurrentCriteria() -> Set<AnyHashable> {
         fatalError("Override in subclass.")
     }
     
@@ -686,11 +686,11 @@ public class GFSCircleQuery: GFSQuery {
         super.init(geoFirestore: geoFirestore)
     }
     
-    override internal func locationIsInQuery(loc: CLLocation) -> Bool {
+    override public func locationIsInQuery(loc: CLLocation) -> Bool {
         return loc.distance(from: self.center) <= (self.radius * 1000.0)
     }
     
-    override internal func queriesForCurrentCriteria() -> Set<AnyHashable> {
+    override public func queriesForCurrentCriteria() -> Set<AnyHashable> {
         return GFGeoHashQuery.queries(forLocation: self.center.coordinate, radius: (self.radius * 1000.0))
     }
 }
@@ -714,7 +714,7 @@ public class GFSRegionQuery: GFSQuery {
         super.init(geoFirestore: geoFirestore)
     }
     
-    override internal func locationIsInQuery(loc: CLLocation) -> Bool {
+    override public func locationIsInQuery(loc: CLLocation) -> Bool {
         let north = CLLocationDegrees(region.center.latitude + region.span.latitudeDelta / 2)
         let south = CLLocationDegrees(region.center.latitude - region.span.latitudeDelta / 2)
         let west = CLLocationDegrees(region.center.longitude - region.span.longitudeDelta / 2)
@@ -723,7 +723,7 @@ public class GFSRegionQuery: GFSQuery {
         return coordinate.latitude <= north && coordinate.latitude >= south && coordinate.longitude >= west && coordinate.longitude <= east
     }
     
-    override internal func queriesForCurrentCriteria() -> Set<AnyHashable> {
+    override public func queriesForCurrentCriteria() -> Set<AnyHashable> {
         return GFGeoHashQuery.queries(for: self.region)
     }
 }
